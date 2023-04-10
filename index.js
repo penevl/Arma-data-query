@@ -16,7 +16,7 @@ nodeCron.schedule(process.env.CRON_SCHEDULE,() => {
 
     Gamedig.query({
         type: 'arma3',
-        host: process.env.CRON_SCHEDULE
+        host: process.env.SERVER_IP.toString()
     }).then((state) => {
         dataReady(state)
     }).catch((error) => {
