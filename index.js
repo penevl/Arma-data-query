@@ -1,3 +1,4 @@
+require('dotenv').config()
 const Gamedig = require('gamedig');
 const mongoose = require('mongoose')
 const fs = require('fs')
@@ -5,18 +6,17 @@ const ServerState = require('./stateModel')
 const nodeCron = require('node-cron')
 
 async function connectToDB() {
-    await mongoose.connect('mongodb+srv://elduko:gibaccessplz@attendance-tracker.ae7rj5p.mongodb.net/attendance-tracker')
+    await mongoose.connect(process.env.MONGO_CONNECTION)
     console.log('Connected to DB')
 }
 
 connectToDB().catch(err => {console.log(err)})
 
-//Cron job for Europe/Sofia timezone: 59 00 21 * * SAT,SUN
-nodeCron.schedule('59 54 12 * * *',() => {
+nodeCron.schedule(process.env.CRON_SCHEDULE,() => {
 
     Gamedig.query({
         type: 'arma3',
-        host: '109.121.215.76' //TAS 82.168.208.164
+        host: process.env.CRON_SCHEDULE
     }).then((state) => {
         dataReady(state)
     }).catch((error) => {
@@ -26,7 +26,7 @@ nodeCron.schedule('59 54 12 * * *',() => {
     
 },{
     scheduled: true,
-    timezone: 'Europe/Sofia'
+    timezone: process.env.CRON_TIMEZONE
 })
 
 function dataReady(data) {
