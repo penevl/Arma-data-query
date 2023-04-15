@@ -5,6 +5,7 @@ const fs = require('fs')
 const ServerState = require('./stateModel')
 const nodeCron = require('node-cron')
 const logger = require('skinwalker')
+const express = require('express')
 
 logger.init(process.env.LOG_LEVEL, {
     traceWriteFile: true
