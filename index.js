@@ -4,24 +4,32 @@ const mongoose = require('mongoose')
 const fs = require('fs')
 const ServerState = require('./stateModel')
 const nodeCron = require('node-cron')
+const logger = require('skinwalker')
+
+logger.init(process.env.LOG_LEVEL, {
+    traceWriteFile: true
+})
 
 async function connectToDB() {
+    logger.trace('Attempting connection to database at: ' + process.env.MONGO_CONNECTION, 'database')
     await mongoose.connect(process.env.MONGO_CONNECTION)
-    console.log('Connected to DB')
+    logger.trace('Established connection to database at: ' + process.env.MONGO_CONNECTION, 'database')
+    logger.info('Connected to database', 'database')
 }
 
 connectToDB().catch(err => {console.log(err)})
 
+logger.info('Setting up cron job with schedule: ' + process.env.CRON_SCHEDULE, 'query')
 nodeCron.schedule(process.env.CRON_SCHEDULE,() => {
 
     Gamedig.query({
         type: 'arma3',
         host: process.env.SERVER_IP.toString()
     }).then((state) => {
+        logger.info('Querying server at: ' + process.env.SERVER_IP, 'gamedig')
         dataReady(state)
     }).catch((error) => {
-        console.error('Server is offline')
-        console.log(error);
+        logger.error(error.message, 'gamedig')
     });
     
 },{
@@ -31,6 +39,10 @@ nodeCron.schedule(process.env.CRON_SCHEDULE,() => {
 
 function dataReady(data) {
     
+    logger.info('Server queried successfully', 'gamedig')
+    logger.trace('Raw server data: ' + JSON.stringify(data), 'gamedig')
+
+    logger.info('Formating raw server data', 'query')
     var dataSet = {
         serverName: String,
         map: String,
@@ -53,9 +65,10 @@ function dataReady(data) {
     dataSet.players = online
     var cutUp = data.raw.game.toString().split('_')
     dataSet.zeus = cutUp[1]
+    logger.info('Raw server data formated', 'query')
+    logger.trace('Formated data: ' + JSON.stringify(dataSet), 'query')
 
-    console.log(dataSet)
-
+    logger.trace('Log function called', 'query')
     logServerState(dataSet)
 
 }
@@ -63,15 +76,19 @@ function dataReady(data) {
 async function logServerState(serverData) {
     
     var date = new Date().toISOString()
+    logger.trace('Log date: ' + date, 'query')
 
+    logger.info('Loggin server state to local file', 'query')
     fs.writeFile('./server-logs/' + date + '.json',JSON.stringify(serverData), err => {
         if(err != null){
-            console.error(err)
+            logger.error(err.message, 'query')
         }
     })
 
     const serverState = new ServerState(serverData)
+
+    logger.info('Logging server state to MongoDB' , 'query')
     await serverState.save()
-    console.log('Saved server state to DB')
+    logger.info('Saved server state to DB', 'query')
 
 }
