@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@2.6.0/dist/full.css" rel="stylesheet" type="text/css"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>TAS Mission attendance</title>
+</head>
+<body>
+
+    <div class="overflow-x-auto" style="padding: 10px;">
+        <table class="table w-full">
+          <!-- head -->
+          <thead>
+            <tr>
+              <th>Mission name</th>
+              <th>Date</th>
+              <th>Player count</th>
+              <th>Players</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <% serverLogs.forEach(log => { %>
+                
+                <tr>
+                    <th><%= log.missionName %></th>
+                    <td> <%= log.date %> </td>
+                    <td> <%= log.playerCount %> </td>
+                    <td> <%= log.players %> </td>
+                </tr>
+
+            <% }) %>
+
+          </tbody>
+        </table>
+      </div>
+
+</body>
+</html>

@@ -5,11 +5,16 @@ const fs = require('fs')
 const ServerState = require('./stateModel')
 const nodeCron = require('node-cron')
 const logger = require('skinwalker')
-const express = require('express')
+const express = require('express');
+const { trace } = require('console');
+const app = express()
 
 logger.init(process.env.LOG_LEVEL, {
     traceWriteFile: true
 })
+
+app.set('view engine', 'ejs');
+logger.info('Set view engine to ejs', 'webserver')
 
 async function connectToDB() {
     logger.trace('Attempting connection to database at: ' + process.env.MONGO_CONNECTION, 'database')
@@ -95,3 +100,38 @@ async function logServerState(serverData) {
     logger.info('Saved server state to DB', 'query')
 
 }
+
+app.get('/', async (req, res) => {
+
+    const dbState = await ServerState.find()
+    logger.trace('dbState: ' + dbState, 'webserver')
+
+    var serverLogs = []
+
+    dbState.forEach( serverLog => {
+
+        var temp = {
+            missionName: String,
+            date: String,
+            playerCount: Number,
+            players: Array
+        }
+
+        temp.missionName = serverLog.missionName
+        temp.date = serverLog.date.split('T')[0]
+        temp.playerCount = serverLog.playerCount
+        temp.players = serverLog.players
+        serverLogs.unshift(temp)
+    })
+
+    logger.trace('serverLogs: ' + JSON.stringify(serverLogs), 'webserver')
+    res.render('index', {
+        serverLogs: serverLogs
+    })
+
+})
+
+var port = process.env.WEB_PORT
+app.listen(port, () => {
+    logger.info('Webserver up on port ' + port, 'webserver')
+})
