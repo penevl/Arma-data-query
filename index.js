@@ -17,7 +17,9 @@ async function connectToDB() {
     logger.info('Connected to database', 'database')
 }
 
-connectToDB().catch(err => {console.log(err)})
+connectToDB().catch(err => {
+    logger.error(err.message)
+})
 
 logger.info('Setting up cron job with schedule: ' + process.env.CRON_SCHEDULE, 'query')
 nodeCron.schedule(process.env.CRON_SCHEDULE,() => {
