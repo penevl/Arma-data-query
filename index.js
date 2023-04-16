@@ -6,7 +6,6 @@ const ServerState = require('./stateModel')
 const nodeCron = require('node-cron')
 const logger = require('skinwalker')
 const express = require('express');
-const { trace } = require('console');
 const app = express()
 
 logger.init(process.env.LOG_LEVEL, {
@@ -15,6 +14,9 @@ logger.init(process.env.LOG_LEVEL, {
 
 app.set('view engine', 'ejs');
 logger.info('Set view engine to ejs', 'webserver')
+
+app.use(express.static('./'))   
+logger.info('Served static files', 'webserver')
 
 async function connectToDB() {
     logger.trace('Attempting connection to database at: ' + process.env.MONGO_CONNECTION, 'database')
@@ -124,9 +126,27 @@ app.get('/', async (req, res) => {
         serverLogs.unshift(temp)
     })
 
+    var chartData = []
+
+    dbState.forEach(element => {
+        
+        var temp = {
+            playerCount: Number,
+            date: String
+        }
+
+        temp.date = element.date.split('T')[0]
+        temp.playerCount = element.playerCount
+
+        chartData.unshift(temp)
+
+    })
+
     logger.trace('serverLogs: ' + JSON.stringify(serverLogs), 'webserver')
+    logger.trace('chartData: ' + JSON.stringify(chartData), 'webserver')
     res.render('index', {
-        serverLogs: serverLogs
+        serverLogs: serverLogs,
+        chartData: JSON.stringify(chartData)
     })
 
 })

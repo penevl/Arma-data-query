@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@2.6.0/dist/full.css" rel="stylesheet" type="text/css"/>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <title>TAS Mission attendance</title>
 </head>
 <body>
@@ -36,7 +37,14 @@
 
           </tbody>
         </table>
+
+        <div id="chart"></div>
+
       </div>
+
+      <div id="chart-data" style="opacity: 0;"><%= chartData %></div>
+
+      <script type="module" src="chart.js"></script>
 
 </body>
 </html>
