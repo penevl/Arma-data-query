@@ -155,7 +155,7 @@ app.get('/echo', async (req, res) => {
 
     const dbState = await ServerState.find()
     logger.trace('dbState: ' + dbState, 'webserver/echo')
-    const echoSquad = process.env.ECHO.toString().split(',')
+    const foxtrotSquad = process.env.ECHO.toString().split(',')
 
     var serverLogs = []
 
@@ -176,14 +176,14 @@ app.get('/echo', async (req, res) => {
         temp.missionName = serverLog.missionName
         temp.date = serverLog.date.split('T')[0]
         temp.playerCount = serverLog.playerCount
-        echoSquad.forEach(member => {
+        foxtrotSquad.forEach(member => {
             if (strippedPlayers.toString().includes(member)) {
                 tempPlayers.push(member)
             }
         })
         temp.players = tempPlayers
         temp.squadCount = tempPlayers.length
-        temp.attendance = ((temp.squadCount / echoSquad.length) * 100)
+        temp.attendance = ((temp.squadCount / foxtrotSquad.length) * 100)
         serverLogs.unshift(temp)
     })
 
@@ -204,6 +204,65 @@ app.get('/echo', async (req, res) => {
     })
 
     res.render('echo', {
+        serverLogs: serverLogs,
+        chartData: JSON.stringify(chartData)
+    })
+        
+})
+
+app.get('/foxtrot', async (req, res) => {
+
+    const dbState = await ServerState.find()
+    logger.trace('dbState: ' + dbState, 'webserver/foxtrot')
+    const foxtrotSquad = process.env.FOXTROT.toString().split(',')
+
+    var serverLogs = []
+
+    dbState.forEach( serverLog => {
+        
+        var strippedPlayers = serverLog.players.toString().replaceAll(/\s*\[.*?]/g, '')
+
+        var temp = {
+            missionName: String,
+            date: String,
+            playerCount: Number,
+            squadCount: Number,
+            attendance: Number,
+            players: Array
+        }
+
+        var tempPlayers = []
+        temp.missionName = serverLog.missionName
+        temp.date = serverLog.date.split('T')[0]
+        temp.playerCount = serverLog.playerCount
+        foxtrotSquad.forEach(member => {
+            if (strippedPlayers.toString().includes(member)) {
+                tempPlayers.push(member)
+            }
+        })
+        temp.players = tempPlayers
+        temp.squadCount = tempPlayers.length
+        temp.attendance = ((temp.squadCount / foxtrotSquad.length) * 100)
+        serverLogs.unshift(temp)
+    })
+
+    var chartData = []
+
+    serverLogs.forEach(element => {
+        
+        var temp = {
+            attendancePercentage: Number,
+            date: String
+        }
+
+        temp.date = element.date.split('T')[0]
+        temp.attendancePercentage = ((element.squadCount / process.env.FOXTROT.toString().split(',').length) * 100)
+
+        chartData.unshift(temp)
+
+    })
+
+    res.render('foxtrot', {
         serverLogs: serverLogs,
         chartData: JSON.stringify(chartData)
     })
