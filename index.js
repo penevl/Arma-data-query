@@ -16,6 +16,7 @@ app.set('view engine', 'ejs');
 logger.info('Set view engine to ejs', 'webserver')
 
 app.use(express.static('./'))   
+app.use('/assets', express.static('./assets'))
 logger.info('Served static files', 'webserver')
 
 async function connectToDB() {
