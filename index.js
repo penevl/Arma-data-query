@@ -122,7 +122,7 @@ app.get('/', async (req, res) => {
         temp.missionName = serverLog.missionName
         temp.date = serverLog.date.split('T')[0]
         temp.playerCount = serverLog.playerCount
-        temp.players = serverLog.players
+        temp.players = serverLog.players.toString().replaceAll(/\s*\[.*?]/g, '')
         serverLogs.unshift(temp)
     })
 
