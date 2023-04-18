@@ -168,6 +168,7 @@ app.get('/echo', async (req, res) => {
             date: String,
             playerCount: Number,
             squadCount: Number,
+            attendance: Number,
             players: Array
         }
 
@@ -182,11 +183,29 @@ app.get('/echo', async (req, res) => {
         })
         temp.players = tempPlayers
         temp.squadCount = tempPlayers.length
+        temp.attendance = ((temp.squadCount / echoSquad.length) * 100)
         serverLogs.unshift(temp)
+    })
+
+    var chartData = []
+
+    serverLogs.forEach(element => {
+        
+        var temp = {
+            attendancePercentage: Number,
+            date: String
+        }
+
+        temp.date = element.date.split('T')[0]
+        temp.attendancePercentage = ((element.squadCount / process.env.ECHO.toString().split(',').length) * 100)
+
+        chartData.unshift(temp)
+
     })
 
     res.render('echo', {
         serverLogs: serverLogs,
+        chartData: JSON.stringify(chartData)
     })
         
 })
