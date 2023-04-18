@@ -151,6 +151,46 @@ app.get('/', async (req, res) => {
 
 })
 
+app.get('/echo', async (req, res) => {
+
+    const dbState = await ServerState.find()
+    logger.trace('dbState: ' + dbState, 'webserver/echo')
+    const echoSquad = process.env.ECHO.toString().split(',')
+
+    var serverLogs = []
+
+    dbState.forEach( serverLog => {
+        
+        var strippedPlayers = serverLog.players.toString().replaceAll(/\s*\[.*?]/g, '')
+
+        var temp = {
+            missionName: String,
+            date: String,
+            playerCount: Number,
+            squadCount: Number,
+            players: Array
+        }
+
+        var tempPlayers = []
+        temp.missionName = serverLog.missionName
+        temp.date = serverLog.date.split('T')[0]
+        temp.playerCount = serverLog.playerCount
+        echoSquad.forEach(member => {
+            if (strippedPlayers.toString().includes(member)) {
+                tempPlayers.push(member)
+            }
+        })
+        temp.players = tempPlayers
+        temp.squadCount = tempPlayers.length
+        serverLogs.unshift(temp)
+    })
+
+    res.render('echo', {
+        serverLogs: serverLogs,
+    })
+        
+})
+
 var port = process.env.WEB_PORT
 app.listen(port, () => {
     logger.info('Webserver up on port ' + port, 'webserver')
