@@ -1,50 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@2.6.0/dist/full.css" rel="stylesheet" type="text/css"/>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <title>TAS Mission attendance</title>
-</head>
-<body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>TAS Mission attendance</title>
 
-    <div class="overflow-x-auto" style="padding: 10px;">
-        <table class="table w-full">
-          <!-- head -->
-          <thead>
-            <tr>
-              <th>Mission name</th>
-              <th>Date</th>
-              <th>Player count</th>
-              <th>Players</th>
-            </tr>
-          </thead>
-          <tbody>
+		<script
+			src="https://kit.fontawesome.com/d90ebad47a.js"
+			crossorigin="anonymous"
+		></script>
+		<link rel="stylesheet" href="../assets/css/main/app.css" />
+		<link rel="stylesheet" href="../assets/css/main/app-dark.css" />
+		<link rel="stylesheet" href="../assets/css/shared/iconly.css" />
+	</head>
 
-            <% serverLogs.forEach(log => { %>
-                
-                <tr>
-                    <th><%= log.missionName %></th>
-                    <td> <%= log.date %> </td>
-                    <td> <%= log.playerCount %> </td>
-                    <td> <%= log.players %> </td>
-                </tr>
+	<body>
+		<div id="app">
+			<div id="main" class="layout-horizontal">
+				<header class="mb-5">
+					<div class="header-top">
+						<div class="container">
+							<div class="logo"></div>
+							<div class="header-top-right">
+								<a href="#" class="burger-btn d-block d-xl-none">
+									<i class="bi bi-justify fs-3"></i>
+								</a>
+							</div>
+						</div>
+					</div>
+					<nav class="main-navbar">
+						<div class="container">
+							<ul>
+								<li class="menu-item">
+									<a href="/" class="menu-link">
+										<span><i class="bi bi-grid-fill"></i> Attendance</span>
+									</a>
+								</li>
+								<li class="menu-item">
+									<a href="/echo" class="menu-link">
+										<span><i class="bi bi-grid-fill"></i>Echo Attendance</span>
+									</a>
+								</li>
+								<li class="menu-item">
+									<a href="/foxtrot" class="menu-link">
+										<span><i class="bi bi-grid-fill"></i>Foxtrot Attendance</span>
+									</a>
+								</li>
+							</ul>
+						</div>
+					</nav>
+				</header>
 
-            <% }) %>
+				<div class="content-wrapper container">
+					<div class="page-heading">
+						<h3>All Attendance</h3>
+					</div>
 
-          </tbody>
-        </table>
+					<div class="page-content">
+						<div class="card-header"></div>
+						<div class="card-body">
+							<table class="table" id="table1">
+								<thead>
+                  <tr>
+                    <th>Mission name</th>
+                    <th>Date</th>
+                    <th>Player count</th>
+                    <th>Players</th>
+                  </tr>
+                </thead>
+                <tbody>
+      
+                  <% serverLogs.forEach(log => { %>
+                      
+                      <tr>
+                          <th><%= log.missionName %></th>
+                          <td> <%= log.date %> </td>
+                          <td> <%= log.playerCount %> </td>
+                          <td> <%= log.players %> </td>
+                      </tr>
+      
+                  <% }) %>
+      
+                </tbody>
+							</table>
 
-        <div id="chart"></div>
+              <div id="chart"></div>
 
-      </div>
+						</div>
+					</div>
+				</div>
 
-      <div id="chart-data" style="opacity: 0;"><%= chartData %></div>
+				<footer>
+					<div class="container">
+						<div class="footer clearfix mb-0 text-muted">
+							<div class="float-start">
+								<p>2021 &copy; Mazer</p>
+							</div>
+							<div class="float-end">
+								<p>Made by ElDuko#6887</p>
+							</div>
+						</div>
+					</div>
+				</footer>
+			</div>
+		</div>
 
-      <script type="module" src="chart.js"></script>
+    <div id="chart-data" style="opacity: 0;"><%= chartData %></div>
 
-</body>
+    <script type="module" src="chart.js"></script>
+		<script src="../assets/js/bootstrap.js"></script>
+		<script src="../assets/js/app.js"></script>
+		<script src="../assets/js/pages/horizontal-layout.js"></script>
+
+		<script src="../assets/extensions/apexcharts/apexcharts.min.js"></script>
+		<script src="../assets/js/charts/joinsAfterPost.js"></script>
+		<script src="../assets/js/charts/leavesWithinDays.js"></script>
+		<script src="../assets/js/charts/joinsPerViews.js"></script>
+	</body>
 </html>
