@@ -32,7 +32,14 @@ connectToDB().catch(err => {
 
 logger.info('Setting up cron job with schedule: ' + process.env.CRON_SCHEDULE, 'query')
 nodeCron.schedule(process.env.CRON_SCHEDULE,() => {
+    queryServer()   
+},{
+    scheduled: true,
+    timezone: process.env.CRON_TIMEZONE
+})
 
+function queryServer() {
+    
     Gamedig.query({
         type: 'arma3',
         host: process.env.SERVER_IP.toString()
@@ -42,11 +49,8 @@ nodeCron.schedule(process.env.CRON_SCHEDULE,() => {
     }).catch((error) => {
         logger.error(error.message, 'gamedig')
     });
-    
-},{
-    scheduled: true,
-    timezone: process.env.CRON_TIMEZONE
-})
+
+}
 
 function dataReady(data) {
     
