@@ -6,6 +6,7 @@ const ServerState = require('./stateModel')
 const nodeCron = require('node-cron')
 const logger = require('skinwalker')
 const express = require('express');
+const AttendanceModel = require('./attendanceModel')
 const app = express()
 
 logger.init(process.env.LOG_LEVEL, {
@@ -106,6 +107,52 @@ async function logServerState(serverData) {
     await serverState.save()
     logger.info('Saved server state to DB', 'query')
 
+    logEchoAttendance()
+
+}
+
+async function logEchoAttendance() {
+
+    logger.info('Trying to log echo attendance to DB', 'webserver/echo')
+    const dbState = await ServerState.find()
+    logger.trace('dbState: ' + dbState, 'webserver/echo')
+    const serverLog = dbState[dbState.length - 1]
+    logger.trace('serverLog: ' + JSON.stringify(serverLog), 'webserver/echo')
+    const echotSquad = process.env.ECHO.toString().split(',')
+    logger.trace('echoSquad: ' + echotSquad, 'webserver/echo')
+    const strippedPlayers = serverLog.players.toString().replaceAll(/\s*\[.*?]/g, '')
+    logger.trace('strippedPlayers: ' + strippedPlayers, 'webserver/echo')
+
+    var temp = {
+        squad: String,
+        missionName: String,
+        date: String,
+        playerCount: Number,
+        squadCount: Number,
+        attendance: Number,
+        players: Array
+    }
+
+    var tempPlayers = []
+    temp.missionName = serverLog.missionName
+    temp.date = serverLog.date.split('T')[0]
+    temp.playerCount = serverLog.playerCount
+    echotSquad.forEach(member => {
+        if (strippedPlayers.toString().includes(member)) {
+            tempPlayers.push(member)
+        }
+    })
+    temp.players = tempPlayers
+    temp.squadCount = tempPlayers.length
+    temp.attendance = ((temp.squadCount / echotSquad.length) * 100)
+    temp.squad = 'echo'
+    logger.trace('temp: ' + temp, 'webserver/echo')
+    
+    const attendanceModel = new AttendanceModel(temp)
+    logger.info('Logging echo attendance to DB', 'webserver/echo')
+    await attendanceModel.save()
+    logger.info('Loged echo attendance to DB', 'webserver/echo')
+
 }
 
 app.get('/', async (req, res) => {
@@ -160,7 +207,7 @@ app.get('/echo', async (req, res) => {
 
     const dbState = await ServerState.find()
     logger.trace('dbState: ' + dbState, 'webserver/echo')
-    const foxtrotSquad = process.env.ECHO.toString().split(',')
+    const echotSquad = process.env.ECHO.toString().split(',')
 
     var serverLogs = []
 
@@ -181,14 +228,14 @@ app.get('/echo', async (req, res) => {
         temp.missionName = serverLog.missionName
         temp.date = serverLog.date.split('T')[0]
         temp.playerCount = serverLog.playerCount
-        foxtrotSquad.forEach(member => {
+        echotSquad.forEach(member => {
             if (strippedPlayers.toString().includes(member)) {
                 tempPlayers.push(member)
             }
         })
         temp.players = tempPlayers
         temp.squadCount = tempPlayers.length
-        temp.attendance = ((temp.squadCount / foxtrotSquad.length) * 100)
+        temp.attendance = ((temp.squadCount / echotSquad.length) * 100)
         serverLogs.unshift(temp)
     })
 
