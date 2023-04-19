@@ -20,16 +20,16 @@ app.use(express.static('./'))
 app.use('/assets', express.static('./assets'))
 logger.info('Served static files', 'webserver')
 
+connectToDB().catch(err => {
+    logger.error(err.message, 'database')
+})
+
 async function connectToDB() {
     logger.trace('Attempting connection to database at: ' + process.env.MONGO_CONNECTION, 'database')
     await mongoose.connect(process.env.MONGO_CONNECTION)
     logger.trace('Established connection to database at: ' + process.env.MONGO_CONNECTION, 'database')
     logger.info('Connected to database', 'database')
 }
-
-connectToDB().catch(err => {
-    logger.error(err.message)
-})
 
 logger.info('Setting up cron job with schedule: ' + process.env.CRON_SCHEDULE, 'query')
 nodeCron.schedule(process.env.CRON_SCHEDULE,() => {
@@ -250,13 +250,14 @@ app.get('/', async (req, res) => {
 
 app.get('/echo', async (req, res) => {
 
-    const dbState = await ServerState.find()
+    const dbState = await AttendanceModel.find({squad: 'echo'})
     logger.trace('dbState: ' + dbState, 'webserver/echo')
     const echotSquad = process.env.ECHO.toString().split(',')
+    logger.trace('echoSquad: ' + echotSquad, 'webserver/echo')
 
     var serverLogs = []
 
-    dbState.forEach( serverLog => {
+    dbState.slice().reverse().forEach( serverLog => {
         
         var strippedPlayers = serverLog.players.toString().replaceAll(/\s*\[.*?]/g, '')
 
@@ -283,6 +284,7 @@ app.get('/echo', async (req, res) => {
         temp.attendance = ((temp.squadCount / echotSquad.length) * 100)
         serverLogs.unshift(temp)
     })
+    logger.trace('serverLogs: ' + serverLogs, 'webserver/echo')
 
     var chartData = []
 
@@ -299,6 +301,7 @@ app.get('/echo', async (req, res) => {
         chartData.unshift(temp)
 
     })
+    logger.trace('chartData: ' + chartData, 'webserver/echo')
 
     res.render('echo', {
         serverLogs: serverLogs,
