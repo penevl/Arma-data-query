@@ -284,7 +284,7 @@ app.get('/echo', async (req, res) => {
         temp.attendance = ((temp.squadCount / echotSquad.length) * 100)
         serverLogs.unshift(temp)
     })
-    logger.trace('serverLogs: ' + serverLogs, 'webserver/echo')
+    logger.trace('serverLogs: ' + JSON.stringify(serverLogs), 'webserver/echo')
 
     var chartData = []
 
@@ -301,7 +301,7 @@ app.get('/echo', async (req, res) => {
         chartData.unshift(temp)
 
     })
-    logger.trace('chartData: ' + chartData, 'webserver/echo')
+    logger.trace('chartData: ' + JSON.stringify(chartData), 'webserver/echo')
 
     res.render('echo', {
         serverLogs: serverLogs,
@@ -312,13 +312,14 @@ app.get('/echo', async (req, res) => {
 
 app.get('/foxtrot', async (req, res) => {
 
-    const dbState = await ServerState.find()
+    const dbState = await AttendanceModel.find({squad: 'foxtrot'})
     logger.trace('dbState: ' + dbState, 'webserver/foxtrot')
     const foxtrotSquad = process.env.FOXTROT.toString().split(',')
+    logger.trace('foxtrotSquad: ' + foxtrotSquad, 'webserver/foxtrot')
 
     var serverLogs = []
 
-    dbState.forEach( serverLog => {
+    dbState.slice().reverse().forEach( serverLog => {
         
         var strippedPlayers = serverLog.players.toString().replaceAll(/\s*\[.*?]/g, '')
 
@@ -345,6 +346,7 @@ app.get('/foxtrot', async (req, res) => {
         temp.attendance = ((temp.squadCount / foxtrotSquad.length) * 100)
         serverLogs.unshift(temp)
     })
+    logger.trace('serverLogs: ' + JSON.stringify(serverLogs), 'webserver/foxtrot')
 
     var chartData = []
 
@@ -361,6 +363,7 @@ app.get('/foxtrot', async (req, res) => {
         chartData.unshift(temp)
 
     })
+    logger.trace('chartData' + JSON.stringify(chartData), 'webserver/foxtrot')
 
     res.render('foxtrot', {
         serverLogs: serverLogs,
