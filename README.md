@@ -34,6 +34,8 @@ Once you have downloaded the tool rename the file `.env.example` to `.env`. In t
 6. WEB_PORT - The port on which the web server will be served
 7. ECHO and FOXTROT - The names of the players in each squad for whom you want to track attendance seperated by commas. Example: ElDuko,Sharp,conner
    > Note 1. The tracker strips all player tags(i.e [TAS] ElDuko becomes ElDuko)
+   
+   
    > Note 2. This is case sensitive
 ## Step 4. Running
 
