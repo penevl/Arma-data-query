@@ -59,8 +59,8 @@
 					<div class="page-content">
 						<div class="card-header"></div>
 						<div class="card-body">
-							<table class="table" id="table1">
-								<thead>
+			<table class="table" id="table1">
+				<thead>
                   <tr>
                     <th>Mission name</th>
                     <th>Date</th>
@@ -85,7 +85,31 @@
                   <% }) %>
       
                 </tbody>
-							</table>
+			</table>
+
+			<div class="page-heading">
+				<h3>Individual Attendance</h3>
+			</div>
+
+			<table class="table" id="table1">
+				<thead>
+                  <tr>
+                    <th>Player name</th>
+                    <th>Attendance(%)</th>
+                  </tr>
+                </thead>
+                <tbody>
+      
+                  <% individualAttendance.forEach(log => { %>
+                      
+                      <tr>
+                          <th><%= log.playerName %></th>
+                          <td> <%= log.attendance %> </td>
+                      </tr>
+                  <% }) %>
+      
+                </tbody>
+			</table>
 
               <div id="chart"></div>
 

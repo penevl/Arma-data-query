@@ -281,7 +281,7 @@ app.get('/echo', async (req, res) => {
         })
         temp.players = tempPlayers
         temp.squadCount = tempPlayers.length
-        temp.attendance = ((temp.squadCount / echotSquad.length) * 100)
+        temp.attendance = ((temp.squadCount / echotSquad.length) * 100).toFixed(2)
         serverLogs.unshift(temp)
     })
     logger.trace('serverLogs: ' + JSON.stringify(serverLogs), 'webserver/echo')
@@ -303,8 +303,37 @@ app.get('/echo', async (req, res) => {
     })
     logger.trace('chartData: ' + JSON.stringify(chartData), 'webserver/echo')
 
+    var individualAttendance = []
+
+    echotSquad.forEach(player => {
+        var temp = {
+            playerName: String,
+            attendance: Number
+        }
+        temp.playerName = player
+        
+        logger.trace('Calculating attendance for player ' + player, 'webserver/echo')
+        var attended = 0
+
+        dbState.forEach(element => {
+            logger.trace('Checking attendance for ' + player + ' in operation ' + element.missionName, 'webserver/echo')
+            if(element.players.toString().replaceAll(/\s*\[.*?]/g, '').includes(player)){
+                logger.trace('Bumping attendance counter for player ' + player, 'webserver/echo')
+                attended++
+            }
+        })
+
+        logger.trace('Attended OPs for player ' + player + ' calculated to ' + attended, 'webserver/echo')
+        var att = ((attended / dbState.length) * 100).toFixed(2)
+        logger.trace('Attendedance for player ' + player + ' calculated to ' + att + '%', 'webserver/echo')
+        temp.attendance = att
+        individualAttendance.unshift(temp)
+    })
+    logger.trace('individualAttendance: ' + JSON.stringify(individualAttendance), 'webserver/echo')
+
     res.render('echo', {
         serverLogs: serverLogs,
+        individualAttendance: individualAttendance,
         chartData: JSON.stringify(chartData)
     })
         
@@ -343,7 +372,7 @@ app.get('/foxtrot', async (req, res) => {
         })
         temp.players = tempPlayers
         temp.squadCount = tempPlayers.length
-        temp.attendance = ((temp.squadCount / foxtrotSquad.length) * 100)
+        temp.attendance = ((temp.squadCount / foxtrotSquad.length) * 100).toFixed(2)
         serverLogs.unshift(temp)
     })
     logger.trace('serverLogs: ' + JSON.stringify(serverLogs), 'webserver/foxtrot')
@@ -371,6 +400,29 @@ app.get('/foxtrot', async (req, res) => {
     })
         
 })
+
+async function getPlayerAttendance(player) {
+
+    logger.trace('Calculating attendance for player ' + player, 'webserver')
+    const dbState = await ServerState.find()
+    logger.trace('dbState: ' + dbState, 'webserver')
+    var attended = 0
+
+    dbState.forEach(element => {
+        logger.trace('Checking attendance for ' + player + ' in operation ' + element.missionName, 'webserver')
+        if(element.players.toString().replaceAll(/\s*\[.*?]/g, '').includes(player)){
+            logger.trace('Bumping attendance counter for player ' + player, 'webserver')
+            attended++
+        }
+    })
+
+    logger.trace('Attended OPs for player ' + player + ' calculated to ' + attended, 'webserver')
+    var attendance = ((attended / dbState.length) * 100).toFixed(2)
+    logger.trace('Attendedance for player ' + player + ' calculated to ' + attendance + '%', 'webserver')
+
+    return attendance
+
+}
 
 var port = process.env.WEB_PORT
 app.listen(port, () => {
