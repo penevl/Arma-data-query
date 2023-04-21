@@ -2,11 +2,11 @@ require('dotenv').config()
 const Gamedig = require('gamedig');
 const mongoose = require('mongoose')
 const fs = require('fs')
-const ServerState = require('./stateModel')
+const ServerState = require('./models/stateModel')
 const nodeCron = require('node-cron')
 const logger = require('skinwalker')
 const express = require('express');
-const AttendanceModel = require('./attendanceModel')
+const AttendanceModel = require('./models/attendanceModel')
 const app = express()
 
 logger.init(process.env.LOG_LEVEL, {
@@ -16,7 +16,7 @@ logger.init(process.env.LOG_LEVEL, {
 app.set('view engine', 'ejs');
 logger.info('Set view engine to ejs', 'webserver')
 
-app.use(express.static('./'))   
+app.use('/', express.static('./charts'))   
 app.use('/assets', express.static('./assets'))
 logger.info('Served static files', 'webserver')
 
