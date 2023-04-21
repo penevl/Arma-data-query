@@ -394,8 +394,37 @@ app.get('/foxtrot', async (req, res) => {
     })
     logger.trace('chartData' + JSON.stringify(chartData), 'webserver/foxtrot')
 
+    var individualAttendance = []
+
+    foxtrotSquad.forEach(player => {
+        var temp = {
+            playerName: String,
+            attendance: Number
+        }
+        temp.playerName = player
+        
+        logger.trace('Calculating attendance for player ' + player, 'webserver/foxtrot')
+        var attended = 0
+
+        dbState.forEach(element => {
+            logger.trace('Checking attendance for ' + player + ' in operation ' + element.missionName, 'webserver/foxtrot')
+            if(element.players.toString().replaceAll(/\s*\[.*?]/g, '').includes(player)){
+                logger.trace('Bumping attendance counter for player ' + player, 'webserver/foxtrot')
+                attended++
+            }
+        })
+
+        logger.trace('Attended OPs for player ' + player + ' calculated to ' + attended, 'webserver/foxtrot')
+        var att = ((attended / dbState.length) * 100).toFixed(2)
+        logger.trace('Attendedance for player ' + player + ' calculated to ' + att + '%', 'webserver/foxtrot')
+        temp.attendance = att
+        individualAttendance.unshift(temp)
+    })
+    logger.trace('individualAttendance: ' + JSON.stringify(individualAttendance), 'webserver/foxtrot')
+
     res.render('foxtrot', {
         serverLogs: serverLogs,
+        individualAttendance, individualAttendance,
         chartData: JSON.stringify(chartData)
     })
         
