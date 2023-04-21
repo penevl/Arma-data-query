@@ -401,29 +401,6 @@ app.get('/foxtrot', async (req, res) => {
         
 })
 
-async function getPlayerAttendance(player) {
-
-    logger.trace('Calculating attendance for player ' + player, 'webserver')
-    const dbState = await ServerState.find()
-    logger.trace('dbState: ' + dbState, 'webserver')
-    var attended = 0
-
-    dbState.forEach(element => {
-        logger.trace('Checking attendance for ' + player + ' in operation ' + element.missionName, 'webserver')
-        if(element.players.toString().replaceAll(/\s*\[.*?]/g, '').includes(player)){
-            logger.trace('Bumping attendance counter for player ' + player, 'webserver')
-            attended++
-        }
-    })
-
-    logger.trace('Attended OPs for player ' + player + ' calculated to ' + attended, 'webserver')
-    var attendance = ((attended / dbState.length) * 100).toFixed(2)
-    logger.trace('Attendedance for player ' + player + ' calculated to ' + attendance + '%', 'webserver')
-
-    return attendance
-
-}
-
 var port = process.env.WEB_PORT
 app.listen(port, () => {
     logger.info('Webserver up on port ' + port, 'webserver')
