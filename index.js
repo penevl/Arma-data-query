@@ -107,22 +107,22 @@ async function logServerState(serverData) {
     await serverState.save()
     logger.info('Saved server state to DB', 'query')
 
-    logEchoAttendance()
-    logFoxtrotAttendance()
+    logSquadAttendance(`echo`)
+    logSquadAttendance(`foxtrot`)
 
 }
 
-async function logEchoAttendance() {
+async function logSquadAttendance(squad) {
 
-    logger.info('Trying to log echo attendance to DB', 'webserver/echo')
+    logger.info(`Attempting to log ${squad} attendance`, `webserver/${squad}`)
     const dbState = await ServerState.find()
-    logger.trace('dbState: ' + dbState, 'webserver/echo')
+    logger.trace('dbState: ' + dbState, `webserver/${squad}`)
     const serverLog = dbState[dbState.length - 1]
-    logger.trace('serverLog: ' + JSON.stringify(serverLog), 'webserver/echo')
-    const echotSquad = process.env.ECHO.toString().split(',')
-    logger.trace('echoSquad: ' + echotSquad, 'webserver/echo')
+    logger.trace('serverLog: ' + JSON.stringify(serverLog), `webserver/${squad}`)
+    const squadMembers = (process.env.squad.toUpperCase()).toString().split(',')
+    logger.trace('squadMembers' + squadMembers, `webserver/${squad}`)
     const strippedPlayers = serverLog.players.toString().replaceAll(/\s*\[.*?]/g, '')
-    logger.trace('strippedPlayers: ' + strippedPlayers, 'webserver/echo')
+    logger.trace('strippedPlayers: ' + strippedPlayers, `webserver/${squad}`)
 
     var temp = {
         squad: String,
@@ -138,51 +138,7 @@ async function logEchoAttendance() {
     temp.missionName = serverLog.missionName
     temp.date = serverLog.date.split('T')[0]
     temp.playerCount = serverLog.playerCount
-    echotSquad.forEach(member => {
-        if (strippedPlayers.toString().includes(member)) {
-            tempPlayers.push(member)
-        }
-    })
-    temp.players = tempPlayers
-    temp.squadCount = tempPlayers.length
-    temp.attendance = ((temp.squadCount / echotSquad.length) * 100)
-    temp.squad = 'echo'
-    logger.trace('temp: ' + temp, 'webserver/echo')
-    
-    const attendanceModel = new AttendanceModel(temp)
-    logger.info('Logging echo attendance to DB', 'webserver/echo')
-    await attendanceModel.save()
-    logger.info('Loged echo attendance to DB', 'webserver/echo')
-
-}
-
-async function logFoxtrotAttendance() {
-
-    logger.info('Trying to log foxtrot attendance to DB', 'webserver/foxtrot')
-    const dbState = await ServerState.find()
-    logger.trace('dbState: ' + dbState, 'webserver/foxtrot')
-    const serverLog = dbState[dbState.length - 1]
-    logger.trace('serverLog: ' + JSON.stringify(serverLog), 'webserver/foxtrot')
-    const foxtrotSquad = process.env.FOXTROT.toString().split(',')
-    logger.trace('foxtrotSquad' + foxtrotSquad, 'webserver/foxtrot')
-    const strippedPlayers = serverLog.players.toString().replaceAll(/\s*\[.*?]/g, '')
-    logger.trace('strippedPlayers: ' + strippedPlayers, 'webserver/foxtrot')
-
-    var temp = {
-        squad: String,
-        missionName: String,
-        date: String,
-        playerCount: Number,
-        squadCount: Number,
-        attendance: Number,
-        players: Array
-    }
-
-    var tempPlayers = []
-    temp.missionName = serverLog.missionName
-    temp.date = serverLog.date.split('T')[0]
-    temp.playerCount = serverLog.playerCount
-    foxtrotSquad.forEach(member => {
+    squadMembers.forEach(member => {
         if (strippedPlayers.toString().includes(member)) {
             tempPlayers.push(member)
         }
@@ -190,13 +146,13 @@ async function logFoxtrotAttendance() {
     temp.players = tempPlayers
     temp.squadCount = tempPlayers.length
     temp.attendance = ((temp.squadCount / foxtrotSquad.length) * 100)
-    temp.squad = 'foxtrot'
-    logger.trace('temp: ' + temp, 'webserver/foxtrot')
+    temp.squad = squad
+    logger.trace('temp: ' + temp, `webserver/${squad}`)
     
     const attendanceModel = new AttendanceModel(temp)
-    logger.info('Logging foxtrot attendance to DB', 'webserver/foxtrot')
+    logger.info(`Logging ${squad} attendance to DB`, `webserver/${squad}`)
     await attendanceModel.save()
-    logger.info('Loged foxtrot attendance to DB', 'webserver/foxtrot')
+    logger.info(`Loged ${squad} attendance to DB`, `webserver/${squad}`)
 
 }
 
