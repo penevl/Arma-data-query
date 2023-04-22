@@ -156,6 +156,27 @@ async function logSquadAttendance(squad) {
 
 }
 
+function getSquadChartData(serverLogs, squadMembers) {
+    
+    var toReturn = []
+
+    serverLogs.forEach(element => {
+        
+        var temp = {
+            attendancePercentage: Number,
+            date: String
+        }
+
+        temp.date = element.date.split('T')[0]
+        temp.attendancePercentage = ((element.squadCount / squadMembers.toString().split(',').length) * 100)
+
+        toReturn.unshift(temp)
+
+    })
+
+    return toReturn
+}
+
 app.get('/', async (req, res) => {
 
     const dbState = await ServerState.find()
@@ -242,21 +263,7 @@ app.get('/echo', async (req, res) => {
     })
     logger.trace('serverLogs: ' + JSON.stringify(serverLogs), 'webserver/echo')
 
-    var chartData = []
-
-    serverLogs.forEach(element => {
-        
-        var temp = {
-            attendancePercentage: Number,
-            date: String
-        }
-
-        temp.date = element.date.split('T')[0]
-        temp.attendancePercentage = ((element.squadCount / process.env.ECHO.toString().split(',').length) * 100)
-
-        chartData.unshift(temp)
-
-    })
+    var chartData = getSquadChartData(serverLogs, echotSquad)
     logger.trace('chartData: ' + JSON.stringify(chartData), 'webserver/echo')
 
     var individualAttendance = []
@@ -333,21 +340,7 @@ app.get('/foxtrot', async (req, res) => {
     })
     logger.trace('serverLogs: ' + JSON.stringify(serverLogs), 'webserver/foxtrot')
 
-    var chartData = []
-
-    serverLogs.forEach(element => {
-        
-        var temp = {
-            attendancePercentage: Number,
-            date: String
-        }
-
-        temp.date = element.date.split('T')[0]
-        temp.attendancePercentage = ((element.squadCount / process.env.FOXTROT.toString().split(',').length) * 100)
-
-        chartData.unshift(temp)
-
-    })
+    var chartData = getSquadChartData(serverLogs, foxtrotSquad)
     logger.trace('chartData' + JSON.stringify(chartData), 'webserver/foxtrot')
 
     var individualAttendance = []
