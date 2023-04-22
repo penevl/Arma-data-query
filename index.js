@@ -156,6 +156,41 @@ async function logSquadAttendance(squad) {
 
 }
 
+function getSquadServerLogs(dbState, squad) {
+    
+    var toReturn = []
+
+    dbState.slice().reverse().forEach( serverLog => {
+        
+        var strippedPlayers = serverLog.players.toString().replaceAll(/\s*\[.*?]/g, '')
+
+        var temp = {
+            missionName: String,
+            date: String,
+            playerCount: Number,
+            squadCount: Number,
+            attendance: Number,
+            players: Array
+        }
+
+        var tempPlayers = []
+        temp.missionName = serverLog.missionName
+        temp.date = serverLog.date.split('T')[0]
+        temp.playerCount = serverLog.playerCount
+        squad.forEach(member => {
+            if (strippedPlayers.toString().includes(member)) {
+                tempPlayers.push(member)
+            }
+        })
+        temp.players = tempPlayers
+        temp.squadCount = tempPlayers.length
+        temp.attendance = ((temp.squadCount / squad.length) * 100).toFixed(2)
+        toReturn.unshift(temp)
+    })
+
+    return toReturn
+}
+
 function getSquadChartData(serverLogs, squadMembers) {
     
     var toReturn = []
@@ -232,35 +267,7 @@ app.get('/echo', async (req, res) => {
     const echotSquad = process.env.ECHO.toString().split(',')
     logger.trace('echoSquad: ' + echotSquad, 'webserver/echo')
 
-    var serverLogs = []
-
-    dbState.slice().reverse().forEach( serverLog => {
-        
-        var strippedPlayers = serverLog.players.toString().replaceAll(/\s*\[.*?]/g, '')
-
-        var temp = {
-            missionName: String,
-            date: String,
-            playerCount: Number,
-            squadCount: Number,
-            attendance: Number,
-            players: Array
-        }
-
-        var tempPlayers = []
-        temp.missionName = serverLog.missionName
-        temp.date = serverLog.date.split('T')[0]
-        temp.playerCount = serverLog.playerCount
-        echotSquad.forEach(member => {
-            if (strippedPlayers.toString().includes(member)) {
-                tempPlayers.push(member)
-            }
-        })
-        temp.players = tempPlayers
-        temp.squadCount = tempPlayers.length
-        temp.attendance = ((temp.squadCount / echotSquad.length) * 100).toFixed(2)
-        serverLogs.unshift(temp)
-    })
+    var serverLogs = getSquadServerLogs(dbState, echotSquad)
     logger.trace('serverLogs: ' + JSON.stringify(serverLogs), 'webserver/echo')
 
     var chartData = getSquadChartData(serverLogs, echotSquad)
@@ -309,35 +316,7 @@ app.get('/foxtrot', async (req, res) => {
     const foxtrotSquad = process.env.FOXTROT.toString().split(',')
     logger.trace('foxtrotSquad: ' + foxtrotSquad, 'webserver/foxtrot')
 
-    var serverLogs = []
-
-    dbState.slice().reverse().forEach( serverLog => {
-        
-        var strippedPlayers = serverLog.players.toString().replaceAll(/\s*\[.*?]/g, '')
-
-        var temp = {
-            missionName: String,
-            date: String,
-            playerCount: Number,
-            squadCount: Number,
-            attendance: Number,
-            players: Array
-        }
-
-        var tempPlayers = []
-        temp.missionName = serverLog.missionName
-        temp.date = serverLog.date.split('T')[0]
-        temp.playerCount = serverLog.playerCount
-        foxtrotSquad.forEach(member => {
-            if (strippedPlayers.toString().includes(member)) {
-                tempPlayers.push(member)
-            }
-        })
-        temp.players = tempPlayers
-        temp.squadCount = tempPlayers.length
-        temp.attendance = ((temp.squadCount / foxtrotSquad.length) * 100).toFixed(2)
-        serverLogs.unshift(temp)
-    })
+    var serverLogs = getSquadServerLogs(dbState, foxtrotSquad)
     logger.trace('serverLogs: ' + JSON.stringify(serverLogs), 'webserver/foxtrot')
 
     var chartData = getSquadChartData(serverLogs, foxtrotSquad)
