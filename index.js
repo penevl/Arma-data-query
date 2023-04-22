@@ -212,6 +212,38 @@ function getSquadChartData(serverLogs, squadMembers) {
     return toReturn
 }
 
+function getSquadIndividualAttendance(dbState, squad, squadName) {
+    
+    var toReturn = []
+    
+    squad.forEach(player => {
+        var temp = {
+            playerName: String,
+            attendance: Number
+        }
+        temp.playerName = player
+        
+        logger.trace('Calculating attendance for player ' + player, `webserver/${squadName}`)
+        var attended = 0
+
+        dbState.forEach(element => {
+            logger.trace('Checking attendance for ' + player + ' in operation ' + element.missionName, `webserver/${squadName}`)
+            if(element.players.toString().replaceAll(/\s*\[.*?]/g, '').includes(player)){
+                logger.trace('Bumping attendance counter for player ' + player, `webserver/${squadName}`)
+                attended++
+            }
+        })
+
+        logger.trace('Attended OPs for player ' + player + ' calculated to ' + attended, `webserver/${squadName}`)
+        var att = ((attended / dbState.length) * 100).toFixed(2)
+        logger.trace('Attendedance for player ' + player + ' calculated to ' + att + '%', `webserver/${squadName}`)
+        temp.attendance = att
+        toReturn.unshift(temp)
+    })
+
+    return toReturn
+}
+
 app.get('/', async (req, res) => {
 
     const dbState = await ServerState.find()
@@ -273,32 +305,7 @@ app.get('/echo', async (req, res) => {
     var chartData = getSquadChartData(serverLogs, echotSquad)
     logger.trace('chartData: ' + JSON.stringify(chartData), 'webserver/echo')
 
-    var individualAttendance = []
-
-    echotSquad.forEach(player => {
-        var temp = {
-            playerName: String,
-            attendance: Number
-        }
-        temp.playerName = player
-        
-        logger.trace('Calculating attendance for player ' + player, 'webserver/echo')
-        var attended = 0
-
-        dbState.forEach(element => {
-            logger.trace('Checking attendance for ' + player + ' in operation ' + element.missionName, 'webserver/echo')
-            if(element.players.toString().replaceAll(/\s*\[.*?]/g, '').includes(player)){
-                logger.trace('Bumping attendance counter for player ' + player, 'webserver/echo')
-                attended++
-            }
-        })
-
-        logger.trace('Attended OPs for player ' + player + ' calculated to ' + attended, 'webserver/echo')
-        var att = ((attended / dbState.length) * 100).toFixed(2)
-        logger.trace('Attendedance for player ' + player + ' calculated to ' + att + '%', 'webserver/echo')
-        temp.attendance = att
-        individualAttendance.unshift(temp)
-    })
+    var individualAttendance = getSquadIndividualAttendance(dbState, echotSquad, 'echo')
     logger.trace('individualAttendance: ' + JSON.stringify(individualAttendance), 'webserver/echo')
 
     res.render('echo', {
@@ -322,32 +329,7 @@ app.get('/foxtrot', async (req, res) => {
     var chartData = getSquadChartData(serverLogs, foxtrotSquad)
     logger.trace('chartData' + JSON.stringify(chartData), 'webserver/foxtrot')
 
-    var individualAttendance = []
-
-    foxtrotSquad.forEach(player => {
-        var temp = {
-            playerName: String,
-            attendance: Number
-        }
-        temp.playerName = player
-        
-        logger.trace('Calculating attendance for player ' + player, 'webserver/foxtrot')
-        var attended = 0
-
-        dbState.forEach(element => {
-            logger.trace('Checking attendance for ' + player + ' in operation ' + element.missionName, 'webserver/foxtrot')
-            if(element.players.toString().replaceAll(/\s*\[.*?]/g, '').includes(player)){
-                logger.trace('Bumping attendance counter for player ' + player, 'webserver/foxtrot')
-                attended++
-            }
-        })
-
-        logger.trace('Attended OPs for player ' + player + ' calculated to ' + attended, 'webserver/foxtrot')
-        var att = ((attended / dbState.length) * 100).toFixed(2)
-        logger.trace('Attendedance for player ' + player + ' calculated to ' + att + '%', 'webserver/foxtrot')
-        temp.attendance = att
-        individualAttendance.unshift(temp)
-    })
+    var individualAttendance = getSquadIndividualAttendance(dbState, foxtrotSquad, 'foxtrot')
     logger.trace('individualAttendance: ' + JSON.stringify(individualAttendance), 'webserver/foxtrot')
 
     res.render('foxtrot', {
