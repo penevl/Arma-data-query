@@ -1,3 +1,5 @@
+# DEPRECATED: This project is has been deprecated. Please use the tools in the [arma-tracker project](https://github.com/arma-tracker)
+
 # Arma-data-query
 Arma data query is a nodejs application used to periodically query arma3 servers and then log that data to a MongoDB database.
 # Features

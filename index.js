@@ -7,6 +7,7 @@ const nodeCron = require('node-cron')
 const logger = require('skinwalker')
 const express = require('express');
 const AttendanceModel = require('./models/attendanceModel')
+const { initDiscord } = require('./src/discord')
 const app = express()
 
 logger.init(process.env.LOG_LEVEL, {
@@ -23,6 +24,8 @@ logger.info('Served static files', 'webserver')
 connectToDB().catch(err => {
     logger.error(err.message, 'database')
 })
+
+initDiscord(logger)
 
 async function connectToDB() {
     logger.trace('Attempting connection to database at: ' + process.env.MONGO_CONNECTION, 'database')
